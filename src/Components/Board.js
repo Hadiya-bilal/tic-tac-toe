@@ -4,19 +4,38 @@ import Square from './Square';
 export default function Board() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
+  
 
   const handleClick = (i) => {
-    if (squares[i]) {
+    // If the square is already filled or there's a winner, do nothing
+    if (squares[i] || calculateWinner(squares)) {
       return;
     }
+    // Create a copy of the squares array
     const newSquares = squares.slice();
+    // Set the value of the clicked square to "X" or "O"
     newSquares[i] = xIsNext ? 'X' : 'O';
+    // Update the squares state
     setSquares(newSquares);
+    // Toggle the turn
     setXIsNext(!xIsNext);
   };
 
+  // Calculate the winner
+  const winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    // If there's a winner, display who won
+    status = 'Winner: ' + winner;
+  } else {
+    // If there's no winner, display whose turn it is
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+  }
+
   return (
     <div>
+    
+        <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />

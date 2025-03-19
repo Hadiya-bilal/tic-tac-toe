@@ -1,6 +1,6 @@
 .board-row {
   display: flex;
-
+  justify-content: center;
 }
 
 .square {
@@ -11,6 +11,20 @@
   font-weight: bold;
   display: flex;
   align-items: center;
-  
   justify-content: center;
+  border: 1px solid #999;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.winning-square {
+  background-color: #4caf50; /* Green background for winning squares */
+  color: #fff; /* White text for better contrast */
+}
+
+.status {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
 }

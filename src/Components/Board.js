@@ -4,69 +4,84 @@ import Square from './Square';
 export default function Board() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
-  
 
   const handleClick = (i) => {
-    // If the square is already filled or there's a winner, do nothing
     if (squares[i] || calculateWinner(squares)) {
       return;
     }
-    // Create a copy of the squares array
     const newSquares = squares.slice();
-    // Set the value of the clicked square to "X" or "O"
     newSquares[i] = xIsNext ? 'X' : 'O';
-    // Update the squares state
     setSquares(newSquares);
-    // Toggle the turn
     setXIsNext(!xIsNext);
   };
 
-  // Calculate the winner
-  const winner = calculateWinner(squares);
+  // Calculate the winner and the winning squares
+  const winnerResult = calculateWinner(squares);
+  const winner = winnerResult ? winnerResult.winner : null;
+  const winningSquares = winnerResult ? winnerResult.line : [];
+
+  // Determine the game status
   let status;
   if (winner) {
-    // If there's a winner, display who won
     status = 'Winner: ' + winner;
+  } else if (squares.every((square) => square !== null)) {
+    status = 'It\'s a draw!';
   } else {
-    // If there's no winner, display whose turn it is
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
+  // Function to create the board using two loops
+  const renderBoard = () => {
+    const board = [];
+    for (let row = 0; row < 3; row++) {
+      const squaresInRow = [];
+      for (let col = 0; col < 3; col++) {
+        const index = row * 3 + col;
+        squaresInRow.push(
+          <Square
+            key={index}
+            value={squares[index]}
+            onSquareClick={() => handleClick(index)}
+            isWinning={winningSquares.includes(index)}
+          />
+        );
+      }
+      board.push(
+        <div key={row} className="board-row">
+          {squaresInRow}
+        </div>
+      );
+    }
+    return board;
+  };
+
   return (
     <div>
-    
-        <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
+      {/* Display the game status */}
+      <div className="status">{status}</div>
+      {/* Render the board using the renderBoard function */}
+      {renderBoard()}
     </div>
   );
 }
 
-// Added this function to check for a winner
+// Function to check for a winner and return the winner and winning squares
 function calculateWinner(squares) {
   const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-    [0, 4, 8], [2, 4, 6], // Diagonals
+    [0, 1, 2], // Top row
+    [3, 4, 5], // Middle row
+    [6, 7, 8], // Bottom row
+    [0, 3, 6], // Left column
+    [1, 4, 7], // Middle column
+    [2, 5, 8], // Right column
+    [0, 4, 8], // Diagonal (top-left to bottom-right)
+    [2, 4, 6], // Diagonal (top-right to bottom-left)
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a], line: [a, b, c] }; // Return the winner and winning squares
     }
   }
-  return null;
+  return null; // No winner yet
 }
